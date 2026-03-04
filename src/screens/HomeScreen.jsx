@@ -20,7 +20,7 @@ const MODE_CARDS = [
   { secs: 300, label: 'Pro Mode', sub: '5 minutes', tag: 'PRO',       cls: 'gold'   },
 ];
 
-export default function HomeScreen({ user, isGuest, selectedSecs, onSelectTime, onPlay }) {
+export default function HomeScreen({ user, isGuest, selectedSecs, onSelectTime, onPlay, onPlayWithFriends }) {
   const [stats,   setStats]   = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -91,10 +91,9 @@ export default function HomeScreen({ user, isGuest, selectedSecs, onSelectTime, 
           ⚡ &nbsp;Play Now
         </button>
 
-        {/* Play with Friends — disabled */}
-        <button className="btn-friends" disabled>
+        {/* Play with Friends */}
+        <button className="btn-friends btn-friends-active" onClick={onPlayWithFriends}>
           👥 &nbsp;Play with Friends
-          <span className="coming-soon-badge">Soon</span>
         </button>
 
       </div>

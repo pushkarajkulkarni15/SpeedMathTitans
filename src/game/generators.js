@@ -135,3 +135,40 @@ export function pickProblem(prevCat) {
   } while (prob.cat === prevCat && tries < 8);
   return prob;
 }
+
+// ── Seeded question generation (for multiplayer sync) ─────────────────────
+
+/**
+ * Mulberry32 — fast, high-quality 32-bit seeded PRNG.
+ * Returns a function that produces [0, 1) floats from the given seed.
+ */
+function mulberry32(seed) {
+  return function () {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Pre-generate a fixed sequence of questions from a seed.
+ * All clients using the same seed will get the exact same questions in order.
+ * @param {number} seed
+ * @param {number} count
+ * @returns {Array<{ q, ans, hint, cat }>}
+ */
+export function generateSeededQuestions(seed, count = 300) {
+  const rng = mulberry32(seed);
+  const saved = Math.random;
+  Math.random = rng;
+  const questions = [];
+  let prevCat = '';
+  for (let i = 0; i < count; i++) {
+    const prob = pickProblem(prevCat);
+    questions.push(prob);
+    prevCat = prob.cat;
+  }
+  Math.random = saved;
+  return questions;
+}
