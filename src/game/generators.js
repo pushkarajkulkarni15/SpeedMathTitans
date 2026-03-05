@@ -13,72 +13,106 @@ export function primeFactors(n) {
 }
 
 // ── Problem generators ────────────────────────────────────────────────────
-// Each returns: { q: string, ans: number, hint: string, cat: string }
+// Each receives a tier (0–3) and returns: { q, ans, hint, cat }
+// Tier increases every 5 correct answers: tier = min(floor(solved/5), 3)
 
 export const generators = [
+
   // Addition
-  () => {
-    const type = rnd(0, 1);
-    const [a, b] = type === 0
-      ? [rnd(35, 99),  rnd(35, 99)]
-      : [rnd(100, 499), rnd(50, 299)];
+  (tier) => {
+    const ranges = [
+      [[10, 50],   [10, 50]],    // tier 0
+      [[35, 150],  [35, 150]],   // tier 1
+      [[100, 499], [50, 299]],   // tier 2
+      [[300, 999], [200, 699]],  // tier 3
+    ];
+    const [[aLo, aHi], [bLo, bHi]] = ranges[tier];
+    const a = rnd(aLo, aHi), b = rnd(bLo, bHi);
     return { q: `${a} + ${b}`, ans: a + b, hint: 'Find the sum', cat: 'Addition' };
   },
 
   // Subtraction
-  () => {
-    const type = rnd(0, 1);
-    const [a, b] = type === 0
-      ? [rnd(150, 499), rnd(50, 140)]
-      : [rnd(400, 999), rnd(100, 350)];
-    const safe = Math.max(a, b);
-    const diff = Math.min(a, b);
-    return { q: `${safe} − ${diff}`, ans: safe - diff, hint: 'Find the difference', cat: 'Subtraction' };
+  (tier) => {
+    const ranges = [
+      [[30, 100],  [10, 25]],     // tier 0
+      [[100, 300], [30, 90]],     // tier 1
+      [[150, 499], [50, 140]],    // tier 2
+      [[400, 999], [100, 350]],   // tier 3
+    ];
+    const [[aLo, aHi], [bLo, bHi]] = ranges[tier];
+    const a = rnd(aLo, aHi), b = rnd(bLo, bHi);
+    return { q: `${a} − ${b}`, ans: a - b, hint: 'Find the difference', cat: 'Subtraction' };
   },
 
   // Multiplication
-  () => {
-    const type = rnd(0, 1);
-    const [a, b] = type === 0
-      ? [rnd(6, 9),   rnd(12, 50)]
-      : [rnd(11, 19), rnd(11, 19)];
+  (tier) => {
+    const ranges = [
+      [[2, 5],   [2, 9]],    // tier 0: times tables
+      [[6, 9],   [6, 15]],   // tier 1
+      [[6, 12],  [12, 30]],  // tier 2
+      [[11, 19], [11, 19]],  // tier 3
+    ];
+    const [[aLo, aHi], [bLo, bHi]] = ranges[tier];
+    const a = rnd(aLo, aHi), b = rnd(bLo, bHi);
     return { q: `${a} × ${b}`, ans: a * b, hint: 'Find the product', cat: 'Multiplication' };
   },
 
   // Division
-  () => {
-    const ans = rnd(12, 80), div = rnd(3, 9);
+  (tier) => {
+    const params = [
+      [2, 9,  2, 5],   // tier 0: ans 2–9, divisor 2–5
+      [6, 30, 2, 7],   // tier 1
+      [12, 60, 3, 9],  // tier 2
+      [20, 99, 4, 12], // tier 3
+    ];
+    const [ansLo, ansHi, divLo, divHi] = params[tier];
+    const ans = rnd(ansLo, ansHi), div = rnd(divLo, divHi);
     return { q: `${ans * div} ÷ ${div}`, ans, hint: 'Find the quotient', cat: 'Division' };
   },
 
   // Squares
-  () => {
-    const n = rnd(11, 25);
+  (tier) => {
+    const ranges = [[2, 9], [9, 15], [13, 20], [18, 25]];
+    const [lo, hi] = ranges[tier];
+    const n = rnd(lo, hi);
     return { q: `${n}²  =  ?`, ans: n * n, hint: `What is ${n} squared?`, cat: 'Squares' };
   },
 
   // Square roots
-  () => {
-    const n = rnd(11, 25);
+  (tier) => {
+    const ranges = [[2, 9], [9, 15], [13, 20], [18, 25]];
+    const [lo, hi] = ranges[tier];
+    const n = rnd(lo, hi);
     return { q: `√${n * n}  =  ?`, ans: n, hint: 'Find the square root', cat: 'Square Roots' };
   },
 
   // Cubes
-  () => {
-    const n = rnd(3, 10);
+  (tier) => {
+    const ranges = [[2, 5], [3, 7], [5, 9], [7, 12]];
+    const [lo, hi] = ranges[tier];
+    const n = rnd(lo, hi);
     return { q: `${n}³  =  ?`, ans: n ** 3, hint: `What is ${n} cubed?`, cat: 'Cubes' };
   },
 
   // Cube roots
-  () => {
-    const n = rnd(3, 10);
+  (tier) => {
+    const ranges = [[2, 5], [3, 7], [5, 9], [7, 12]];
+    const [lo, hi] = ranges[tier];
+    const n = rnd(lo, hi);
     return { q: `∛${n ** 3}  =  ?`, ans: n, hint: 'Find the cube root', cat: 'Cube Roots' };
   },
 
   // HCF
-  () => {
-    const g = rnd(4, 18);
-    const [p, q] = pick([[2,3],[2,5],[3,5],[2,7],[3,7],[4,5],[3,4],[5,7]]);
+  (tier) => {
+    const configs = [
+      { gRange: [2, 6],  pairs: [[2,3],[2,5],[3,4],[2,7]] },
+      { gRange: [3, 10], pairs: [[2,3],[2,5],[3,5],[2,7],[3,4]] },
+      { gRange: [4, 15], pairs: [[2,3],[2,5],[3,5],[2,7],[3,7],[4,5]] },
+      { gRange: [6, 25], pairs: [[2,3],[2,5],[3,5],[2,7],[3,7],[4,5],[3,4],[5,7]] },
+    ];
+    const { gRange, pairs } = configs[tier];
+    const g = rnd(gRange[0], gRange[1]);
+    const [p, q] = pick(pairs);
     return {
       q:    `HCF of ${p * g} and ${q * g}`,
       ans:  gcd(p * g, q * g),
@@ -88,16 +122,27 @@ export const generators = [
   },
 
   // LCM
-  () => {
-    const [a, b] = pick([[3,4],[4,6],[6,8],[4,5],[5,6],[6,9],[8,12],[6,10],[4,9],[5,8],[6,7],[8,9],[9,12],[10,12],[4,15],[6,14],[8,10],[5,12]]);
+  (tier) => {
+    const sets = [
+      [[2,3],[2,4],[3,4],[2,6],[4,6]],
+      [[3,4],[4,6],[6,8],[4,5],[5,6]],
+      [[6,9],[8,12],[6,10],[4,9],[5,8],[6,7]],
+      [[8,9],[9,12],[10,12],[4,15],[6,14],[8,10],[5,12]],
+    ];
+    const [a, b] = pick(sets[tier]);
     return { q: `LCM of ${a} and ${b}`, ans: lcm(a, b), hint: 'Lowest Common Multiple', cat: 'LCM' };
   },
 
   // Prime factors (largest)
-  () => {
-    const primes = [11, 13, 17, 19, 23, 29, 31, 37, 41, 43];
-    const small  = [2, 3, 5, 7];
-    const n = pick(primes) * pick(small);
+  (tier) => {
+    const configs = [
+      { primes: [2, 3, 5, 7],         smalls: [2, 3] },
+      { primes: [7, 11, 13],           smalls: [2, 3, 5] },
+      { primes: [11, 13, 17, 19],      smalls: [2, 3, 5, 7] },
+      { primes: [17, 19, 23, 29, 31],  smalls: [2, 3, 5, 7] },
+    ];
+    const { primes, smalls } = configs[tier];
+    const n = pick(primes) * pick(smalls);
     return {
       q:    `Largest prime factor of ${n}`,
       ans:  Math.max(...primeFactors(n)),
@@ -107,11 +152,14 @@ export const generators = [
   },
 
   // Percentages
-  () => {
-    const [p, n] = pick([
-      [10,150],[10,240],[10,350],[15,60],[15,80],[15,120],[20,65],[20,85],[20,125],
-      [25,60],[25,80],[25,120],[25,160],[30,70],[30,90],[50,86],[50,144],[75,80],[75,120],
-    ]);
+  (tier) => {
+    const sets = [
+      [[10,20],[10,40],[10,60],[25,20],[25,40],[50,20],[50,40]],
+      [[10,150],[15,60],[15,80],[20,65],[25,60],[25,80],[50,86]],
+      [[10,240],[15,120],[20,85],[20,125],[25,120],[25,160],[30,70]],
+      [[15,160],[20,145],[25,180],[30,90],[30,120],[35,80],[40,75],[75,80]],
+    ];
+    const [p, n] = pick(sets[tier]);
     return {
       q:    `${p}% of ${n}  =  ?`,
       ans:  Math.round(p * n / 100),
@@ -124,13 +172,15 @@ export const generators = [
 /**
  * Pick a random problem, avoiding the same category twice in a row.
  * @param {string} prevCat
+ * @param {number} solved  — number of correct answers so far (drives difficulty)
  * @returns {{ q, ans, hint, cat }}
  */
-export function pickProblem(prevCat) {
+export function pickProblem(prevCat, solved = 0) {
+  const tier = Math.min(Math.floor(solved / 5), 3);
   let gen, prob, tries = 0;
   do {
     gen  = pick(generators);
-    prob = gen();
+    prob = gen(tier);
     tries++;
   } while (prob.cat === prevCat && tries < 8);
   return prob;
@@ -140,7 +190,6 @@ export function pickProblem(prevCat) {
 
 /**
  * Mulberry32 — fast, high-quality 32-bit seeded PRNG.
- * Returns a function that produces [0, 1) floats from the given seed.
  */
 function mulberry32(seed) {
   return function () {
@@ -152,11 +201,7 @@ function mulberry32(seed) {
 }
 
 /**
- * Pre-generate a fixed sequence of questions from a seed.
- * All clients using the same seed will get the exact same questions in order.
- * @param {number} seed
- * @param {number} count
- * @returns {Array<{ q, ans, hint, cat }>}
+ * Pre-generate a fixed sequence of questions from a seed (multiplayer).
  */
 export function generateSeededQuestions(seed, count = 300) {
   const rng = mulberry32(seed);
@@ -165,7 +210,7 @@ export function generateSeededQuestions(seed, count = 300) {
   const questions = [];
   let prevCat = '';
   for (let i = 0; i < count; i++) {
-    const prob = pickProblem(prevCat);
+    const prob = pickProblem(prevCat, i);  // difficulty scales through the session
     questions.push(prob);
     prevCat = prob.cat;
   }

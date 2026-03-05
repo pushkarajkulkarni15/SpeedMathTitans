@@ -9,13 +9,22 @@
  *   5. Paste values below and flip CONFIGURED to true
  */
 
-export const CONFIGURED = false;
+export const CONFIGURED = true;
 
-export const firebaseConfig = {
-  apiKey:            'YOUR_API_KEY',
-  authDomain:        'YOUR_PROJECT.firebaseapp.com',
-  projectId:         'YOUR_PROJECT_ID',
-  storageBucket:     'YOUR_PROJECT.appspot.com',
-  messagingSenderId: 'YOUR_SENDER_ID',
-  appId:             'YOUR_APP_ID',
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDdQg7yVE2OzxW4hpgNarQY6SDuzPWjVAo",
+  authDomain: "speedmathtitans.firebaseapp.com",
+  projectId: "speedmathtitans",
+  storageBucket: "speedmathtitans.firebasestorage.app",
+  messagingSenderId: "856359747715",
+  appId: "1:856359747715:web:48e28284f262af41cd1bb6"
 };
+
+// Initialize Firebase
+export const app = initializeApp(firebaseConfig);

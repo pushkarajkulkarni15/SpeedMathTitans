@@ -118,7 +118,7 @@ export function useGameState() {
    */
   const nextQuestion = useCallback(() => {
     const g = gRef.current;
-    const prob = pickProblem(g.prevCat);
+    const prob = pickProblem(g.prevCat, g.solved);
     gRef.current = { ...g, problem: prob, prevCat: prob.cat, curAttempts: 0 };
     forceUpdate();
   }, []);

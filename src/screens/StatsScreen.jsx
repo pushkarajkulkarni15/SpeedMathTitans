@@ -12,18 +12,7 @@ function timeAgo(date) {
 
 function durLabel(secs) { return `${Math.round(secs / 60)} min`; }
 
-const DUMMY_ACC   = [65, 78, 55, 82, 70, 88, 75];
-const CHART_DAYS  = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
-const W = 300, H = 72, PAD = 4;
-
-function buildPoints(values) {
-  const step = (W - PAD * 2) / Math.max(values.length - 1, 1);
-  return values.map((v, i) => ({
-    x: PAD + i * step,
-    y: H - PAD - (v / 100) * (H - PAD * 2),
-    v,
-  }));
-}
+const CHART_W = 300, CHART_H = 90, BAR_PAD = 6;
 
 export default function StatsScreen({ user, isGuest }) {
   const [stats,   setStats]   = useState(null);
@@ -38,12 +27,8 @@ export default function StatsScreen({ user, isGuest }) {
       .finally(() => setLoading(false));
   }, [user]);
 
-  const accValues = history.length >= 2
-    ? history.slice(0, 7).map(g => g.accuracy).reverse()
-    : DUMMY_ACC;
-  const pts = buildPoints(accValues);
-  const line = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-  const area = `${line} L${pts[pts.length - 1].x.toFixed(1)},${H + 4} L${pts[0].x.toFixed(1)},${H + 4} Z`;
+  const scoreGames = history.slice(0, 5).reverse(); // oldest → newest
+  const maxScore   = Math.max(...scoreGames.map(g => g.score), 1);
 
   return (
     <div className="screen active">
@@ -81,36 +66,48 @@ export default function StatsScreen({ user, isGuest }) {
           </div>
         </div>
 
-        {/* Accuracy trend chart */}
-        <div className="sp-chart-label">Accuracy Trend</div>
+        {/* Last 5 games score chart */}
+        <div className="sp-chart-label">Last 5 Games — Score</div>
         {isGuest ? (
-          <div className="sp-guest-msg">Sign in to see your accuracy trend</div>
+          <div className="sp-guest-msg">Sign in to see your score history</div>
+        ) : !loading && scoreGames.length === 0 ? (
+          <div className="sp-guest-msg">Play some games to see your scores here</div>
         ) : (
           <div className="sp-chart-wrap">
             <svg
-              viewBox={`0 0 ${W} ${H + 4}`}
+              viewBox={`0 0 ${CHART_W} ${CHART_H + 20}`}
               preserveAspectRatio="none"
               className="sp-chart-svg"
             >
               <defs>
-                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor="#7c6cf8" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#7c6cf8" stopOpacity="0" />
+                <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor="#a78bfa" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#7c6cf8" stopOpacity="1" />
                 </linearGradient>
               </defs>
-              <path d={area} fill="url(#chartGrad)" />
-              <path d={line} fill="none" stroke="#7c6cf8" strokeWidth="2"
-                strokeLinejoin="round" strokeLinecap="round" />
-              {pts.map((p, i) => (
-                <circle key={i} cx={p.x} cy={p.y} r="3"
-                  fill="#7c6cf8" stroke="#070710" strokeWidth="1.5" />
-              ))}
+              {scoreGames.map((game, i) => {
+                const n       = scoreGames.length;
+                const barW    = (CHART_W - BAR_PAD * (n + 1)) / n;
+                const x       = BAR_PAD + i * (barW + BAR_PAD);
+                const barH    = Math.max((game.score / maxScore) * (CHART_H - 18), 4);
+                const y       = CHART_H - barH;
+                const labelX  = x + barW / 2;
+                return (
+                  <g key={game.id ?? i}>
+                    <rect x={x} y={y} width={barW} height={barH}
+                      fill="url(#barGrad)" rx="4" ry="4" />
+                    <text x={labelX} y={y - 4} textAnchor="middle"
+                      fontSize="9" fill="#a78bfa" fontWeight="600">
+                      {game.score}
+                    </text>
+                    <text x={labelX} y={CHART_H + 13} textAnchor="middle"
+                      fontSize="9" fill="#6b7280">
+                      G{i + 1}
+                    </text>
+                  </g>
+                );
+              })}
             </svg>
-            <div className="sp-chart-days">
-              {CHART_DAYS.slice(0, pts.length).map((d, i) => (
-                <span key={i}>{d}</span>
-              ))}
-            </div>
           </div>
         )}
 
