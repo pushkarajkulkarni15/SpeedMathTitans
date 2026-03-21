@@ -24,6 +24,21 @@ export default function GameRoomScreen({
   const [copied,  setCopied]  = useState(false);
   const [starting, setStarting] = useState(false);
 
+  if (!roomData) return (
+    <div className="screen active">
+      <div className="mp-room-card glass-card">
+        <div className="mp-room-header">
+          <button className="mp-back-btn" onClick={onLeave}>← Back</button>
+          <span className="mp-room-header-title">Game Room</span>
+          <span style={{ width: 32 }} />
+        </div>
+        <div style={{ padding: '40px 24px', textAlign: 'center', color: 'var(--t3)' }}>
+          Setting up room…
+        </div>
+      </div>
+    </div>
+  );
+
   const duration = roomData?.duration ?? 120;
   const players  = roomData?.players  ?? {};
   const entries  = Object.entries(players).sort(

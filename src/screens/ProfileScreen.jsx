@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { loadUserData } from '../firebase/firestore';
+import { useState } from 'react';
 import { signOut } from '../firebase/auth';
 
 function initials(name) {
@@ -18,18 +17,11 @@ function getRank(level) {
   return 'Beginner';
 }
 
-export default function ProfileScreen({ user, isGuest, onSignOut, onGoHome }) {
-  const [stats,      setStats]      = useState(null);
-  const [loading,    setLoading]    = useState(true);
+export default function ProfileScreen({ user, isGuest, onSignOut, onGoHome, userData }) {
   const [signingOut, setSigningOut] = useState(false);
 
-  useEffect(() => {
-    if (!user) { setLoading(false); return; }
-    loadUserData(user.uid)
-      .then(data => setStats(data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [user]);
+  const stats   = userData;
+  const loading = user && !userData;
 
   const handleSignOut = async () => {
     setSigningOut(true);

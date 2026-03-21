@@ -29,7 +29,10 @@
  *   needed for local development and demo.
  */
 
-import { CONFIGURED } from './config';
+import { RTDB_CONFIGURED as CONFIGURED, app } from './config';
+import { getDatabase, ref, set, get, update, onValue, off } from 'firebase/database';
+
+const db = CONFIGURED ? getDatabase(app) : null;
 
 // ── Local demo mode ────────────────────────────────────────────────────────
 // BroadcastChannel notifies other tabs; CustomEvent notifies the current tab.
@@ -100,10 +103,7 @@ export async function createRoom({ hostId, hostName, duration }) {
     return code;
   }
 
-  // TODO: real RTDB implementation
-  // import { getDatabase, ref, set } from 'firebase/database';
-  // const db = getDatabase();
-  // await set(ref(db, `rooms/${code}`), room);
+  await set(ref(db, `rooms/${code}`), room);
   return code;
 }
 
@@ -120,16 +120,14 @@ export async function joinRoom({ roomCode, playerId, playerName }) {
     return room;
   }
 
-  // TODO: real RTDB implementation
-  // const db = getDatabase();
-  // const snap = await get(ref(db, `rooms/${roomCode}`));
-  // if (!snap.exists()) throw new Error('Room not found. Check the code and try again.');
-  // const room = snap.val();
-  // if (room.status !== 'waiting') throw new Error('Game already started. You cannot join now.');
-  // await update(ref(db, `rooms/${roomCode}/players/${playerId}`), {
-  //   name: playerName, score: 0, solved: 0, accuracy: 0, joinedAt: Date.now(),
-  // });
-  // return room;
+  const snap = await get(ref(db, `rooms/${roomCode}`));
+  if (!snap.exists()) throw new Error('Room not found. Check the code and try again.');
+  const room = snap.val();
+  if (room.status !== 'waiting') throw new Error('Game already started. You cannot join now.');
+  await update(ref(db, `rooms/${roomCode}/players/${playerId}`), {
+    name: playerName, score: 0, solved: 0, accuracy: 0, joinedAt: Date.now(),
+  });
+  return room;
 }
 
 /**
@@ -138,13 +136,9 @@ export async function joinRoom({ roomCode, playerId, playerName }) {
 export function listenRoom(roomCode, callback) {
   if (!CONFIGURED) return localListen(roomCode, callback);
 
-  // TODO: real RTDB implementation
-  // import { getDatabase, ref, onValue, off } from 'firebase/database';
-  // const db = getDatabase();
-  // const roomRef = ref(db, `rooms/${roomCode}`);
-  // onValue(roomRef, snap => callback(snap.exists() ? snap.val() : null));
-  // return () => off(roomRef);
-  return () => {};
+  const roomRef = ref(db, `rooms/${roomCode}`);
+  onValue(roomRef, snap => callback(snap.exists() ? snap.val() : null));
+  return () => off(roomRef);
 }
 
 /**
@@ -161,12 +155,10 @@ export async function startRoomGame(roomCode) {
     return;
   }
 
-  // TODO: real RTDB implementation
-  // const db = getDatabase();
-  // await update(ref(db, `rooms/${roomCode}`), {
-  //   status: 'playing',
-  //   startAt: Date.now() + 3000,  // use serverTimestamp() + offset in production
-  // });
+  await update(ref(db, `rooms/${roomCode}`), {
+    status: 'playing',
+    startAt: Date.now() + 3000,
+  });
 }
 
 /**
@@ -181,9 +173,7 @@ export async function updatePlayerScore(roomCode, playerId, { score, solved, acc
     return;
   }
 
-  // TODO: real RTDB implementation
-  // const db = getDatabase();
-  // await update(ref(db, `rooms/${roomCode}/players/${playerId}`), { score, solved, accuracy });
+  await update(ref(db, `rooms/${roomCode}/players/${playerId}`), { score, solved, accuracy });
 }
 
 /**
@@ -198,9 +188,7 @@ export async function removePlayer(roomCode, playerId) {
     return;
   }
 
-  // TODO: real RTDB implementation
-  // const db = getDatabase();
-  // await set(ref(db, `rooms/${roomCode}/players/${playerId}`), null);
+  await set(ref(db, `rooms/${roomCode}/players/${playerId}`), null);
 }
 
 /**
@@ -215,7 +203,5 @@ export async function updateRoomDuration(roomCode, duration) {
     return;
   }
 
-  // TODO: real RTDB implementation
-  // const db = getDatabase();
-  // await update(ref(db, `rooms/${roomCode}`), { duration });
+  await update(ref(db, `rooms/${roomCode}`), { duration });
 }

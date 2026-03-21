@@ -1,6 +1,3 @@
-import { useEffect, useState } from 'react';
-import { loadUserData } from '../firebase/firestore';
-
 function initials(name) {
   if (!name) return '?';
   return name.trim().split(/\s+/).map(w => w[0].toUpperCase()).slice(0, 2).join('');
@@ -20,17 +17,9 @@ const MODE_CARDS = [
   { secs: 300, label: 'Pro Mode', sub: '5 minutes', tag: 'PRO',       cls: 'gold'   },
 ];
 
-export default function HomeScreen({ user, isGuest, selectedSecs, onSelectTime, onPlay, onPlayWithFriends }) {
-  const [stats,   setStats]   = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) { setLoading(false); return; }
-    loadUserData(user.uid)
-      .then(data => setStats(data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [user]);
+export default function HomeScreen({ user, isGuest, selectedSecs, onSelectTime, onPlay, onPlayWithFriends, userData }) {
+  const stats   = userData;
+  const loading = user && !userData;
 
   const displayName = isGuest ? 'Guest' : (user?.displayName || 'Challenger');
   const firstName   = displayName.split(' ')[0];

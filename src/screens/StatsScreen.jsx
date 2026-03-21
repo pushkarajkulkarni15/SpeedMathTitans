@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-import { loadUserData, loadGameHistory } from '../firebase/firestore';
 
 function timeAgo(date) {
   const s = Math.floor((Date.now() - date) / 1000);
@@ -14,18 +12,10 @@ function durLabel(secs) { return `${Math.round(secs / 60)} min`; }
 
 const CHART_W = 300, CHART_H = 90, BAR_PAD = 6;
 
-export default function StatsScreen({ user, isGuest }) {
-  const [stats,   setStats]   = useState(null);
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) { setLoading(false); return; }
-    Promise.all([loadUserData(user.uid), loadGameHistory(user.uid)])
-      .then(([ud, gh]) => { setStats(ud); setHistory(gh); })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [user]);
+export default function StatsScreen({ user, isGuest, userData, gameHistory }) {
+  const stats   = userData;
+  const history = gameHistory ?? [];
+  const loading = user && !userData;
 
   const scoreGames = history.slice(0, 5).reverse(); // oldest → newest
   const maxScore   = Math.max(...scoreGames.map(g => g.score), 1);

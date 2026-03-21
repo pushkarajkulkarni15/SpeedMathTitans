@@ -11,15 +11,14 @@
 
 export const CONFIGURED = true;
 
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+export const RTDB_CONFIGURED = true;
 
-// Your web app's Firebase configuration
+import { initializeApp } from "firebase/app";
+
 const firebaseConfig = {
   apiKey: "AIzaSyDdQg7yVE2OzxW4hpgNarQY6SDuzPWjVAo",
   authDomain: "speedmathtitans.firebaseapp.com",
+  databaseURL: "https://speedmathtitans-default-rtdb.firebaseio.com",
   projectId: "speedmathtitans",
   storageBucket: "speedmathtitans.firebasestorage.app",
   messagingSenderId: "856359747715",

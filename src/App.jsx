@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from './firebase/auth';
-import { upsertUserDoc } from './firebase/firestore';
+import { upsertUserDoc, loadUserData, loadGameHistory } from './firebase/firestore';
 import { useRoom } from './hooks/useRoom';
 
 import AuthScreen    from './screens/AuthScreen';
@@ -31,6 +31,15 @@ export default function App() {
   const [gameResult,   setGameResult]   = useState(null);
   const [lastScore,    setLastScore]    = useState(null);
   const [showFriendsModal, setShowFriendsModal] = useState(false);
+  const [userData,     setUserData]     = useState(null);
+  const [gameHistory,  setGameHistory]  = useState([]);
+
+  const refreshUserData = (uid) => {
+    if (!uid) return;
+    Promise.all([loadUserData(uid), loadGameHistory(uid)])
+      .then(([ud, gh]) => { setUserData(ud); setGameHistory(gh); })
+      .catch(console.error);
+  };
 
   const room = useRoom(user, isGuest);
 
@@ -42,7 +51,10 @@ export default function App() {
       if (u) {
         upsertUserDoc(u);
         setScreen('home');
+        refreshUserData(u.uid);
       } else {
+        setUserData(null);
+        setGameHistory([]);
         setScreen('auth');
       }
     });
@@ -72,6 +84,7 @@ export default function App() {
     setLastScore(gameResult?.score ?? null);
     setGameResult(result);
     setScreen('result');
+    if (user) refreshUserData(user.uid);
   };
 
   const handlePlayAgain = () => { setScreen('game'); };
@@ -131,11 +144,12 @@ export default function App() {
           selectedSecs={selectedSecs} onSelectTime={setSelectedSecs}
           onPlay={handlePlay}
           onPlayWithFriends={handleOpenFriendsModal}
+          userData={userData}
         />
       )}
 
       {screen === 'stats' && (
-        <StatsScreen user={user} isGuest={isGuest} />
+        <StatsScreen user={user} isGuest={isGuest} userData={userData} gameHistory={gameHistory} />
       )}
 
       {screen === 'game' && (
@@ -155,12 +169,13 @@ export default function App() {
         <ProfileScreen
           user={user} isGuest={isGuest}
           onSignOut={handleSignOut} onGoHome={handleGoHome}
+          userData={userData}
         />
       )}
 
       {/* ── Multiplayer screens ── */}
 
-      {screen === 'mp-room' && room.roomData && (
+      {screen === 'mp-room' && room.roomCode && (
         <GameRoomScreen
           roomCode={room.roomCode}
           roomData={room.roomData}
