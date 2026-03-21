@@ -42,6 +42,8 @@
 
 html { scroll-behavior: smooth; }
 
+#root { width: 100%; }
+
 /* ── Page ──────────────────────────────────────────────────── */
 body {
   background: var(--bg);
@@ -52,7 +54,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px 14px;
+  padding: 0;
   position: relative;
   overflow-x: hidden;
 }
@@ -76,7 +78,7 @@ body::after {
 }
 
 /* ── Screens ───────────────────────────────────────────────── */
-.screen { position: relative; z-index: 1; width: 100%; max-width: 500px; }
+.screen { position: relative; z-index: 1; width: 100%; }
 
 /* ── Glass Card ────────────────────────────────────────────── */
 .glass-card {
@@ -237,7 +239,7 @@ body::after {
 /* ═══════════════════════════════════════════════════════
    HOME SCREEN
 ═══════════════════════════════════════════════════════ */
-.home-card { overflow: hidden; animation: popIn .45s cubic-bezier(.22,1,.36,1); }
+.home-card { overflow: hidden; animation: popIn .45s cubic-bezier(.22,1,.36,1); border-radius: 0; }
 
 .home-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -329,7 +331,7 @@ body::after {
 /* ═══════════════════════════════════════════════════════
    STATS SCREEN
 ═══════════════════════════════════════════════════════ */
-.stats-page { padding: 0 0 24px; overflow: hidden; animation: popIn .45s cubic-bezier(.22,1,.36,1); }
+.stats-page { padding: 0 0 24px; overflow: hidden; animation: popIn .45s cubic-bezier(.22,1,.36,1); border-radius: 0; }
 
 .sp-header { padding: 24px 24px 0; }
 .sp-title  { font-size: 1.3rem; font-weight: 900; color: var(--t1); letter-spacing: -.5px; }
@@ -506,7 +508,7 @@ body::after {
 /* ═══════════════════════════════════════════════════════
    RESULT SCREEN
 ═══════════════════════════════════════════════════════ */
-.result-card { padding: 32px 28px 28px; text-align: center; animation: popIn .5s cubic-bezier(.22,1,.36,1); }
+.result-card { padding: 32px 28px 28px; text-align: center; animation: popIn .5s cubic-bezier(.22,1,.36,1); border-radius: 0; }
 
 .result-header { margin-bottom: 20px; }
 .result-icon  { font-size: 2.4rem; display: block; margin-bottom: 8px; }
@@ -574,7 +576,7 @@ body::after {
 /* ═══════════════════════════════════════════════════════
    PROFILE SCREEN
 ═══════════════════════════════════════════════════════ */
-.profile-card { overflow: hidden; animation: popIn .45s cubic-bezier(.22,1,.36,1); }
+.profile-card { overflow: hidden; animation: popIn .45s cubic-bezier(.22,1,.36,1); border-radius: 0; }
 
 .profile-topbar {
   display: flex; align-items: center; justify-content: space-between;
@@ -696,7 +698,7 @@ body::after {
 
 /* ── Responsive — mobile first (≤ 480px) ────────────── */
 @media (max-width: 480px) {
-  body { padding: 12px 10px; }
+  body { padding: 0; }
 
   /* Auth */
   .auth-card { padding: 24px 18px 22px; }
@@ -845,7 +847,7 @@ body::after {
 /* ── Game Room Screen (host lobby) ───────────────────── */
 .mp-room-card {
   overflow-y: auto; animation: popIn .45s cubic-bezier(.22,1,.36,1);
-  max-height: calc(100dvh - 32px);
+  max-height: 100dvh; border-radius: 0;
 }
 .mp-room-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -933,7 +935,7 @@ body::after {
 .mp-start-btn { margin: 16px 16px 20px; width: calc(100% - 32px); }
 
 /* ── Join Room Screen ─────────────────────────────────── */
-.mp-join-card { overflow-y: auto; animation: popIn .45s cubic-bezier(.22,1,.36,1); max-height: calc(100dvh - 32px); }
+.mp-join-card { overflow-y: auto; animation: popIn .45s cubic-bezier(.22,1,.36,1); max-height: 100dvh; border-radius: 0; }
 .mp-join-body { padding: 28px 24px 24px; text-align: center; }
 .mp-join-title { font-size: 1.55rem; font-weight: 900; color: var(--t1); letter-spacing: -.6px; margin-bottom: 8px; }
 .mp-join-sub   { font-size: .84rem; color: var(--t2); line-height: 1.5; margin-bottom: 28px; }
@@ -971,7 +973,7 @@ body::after {
 .mp-link-btn:hover { color: var(--violet); }
 
 /* ── Lobby Screen ─────────────────────────────────────── */
-.mp-lobby-card { overflow-y: auto; animation: popIn .45s cubic-bezier(.22,1,.36,1); max-height: calc(100dvh - 32px); }
+.mp-lobby-card { overflow-y: auto; animation: popIn .45s cubic-bezier(.22,1,.36,1); max-height: 100dvh; border-radius: 0; }
 .mp-lobby-body {
   display: flex; flex-direction: column; align-items: center;
   padding: 36px 24px 28px; text-align: center;
@@ -1028,7 +1030,7 @@ body::after {
 }
 
 /* ── Multiplayer Result Screen ────────────────────────── */
-.mp-result-card { overflow-y: auto; animation: popIn .5s cubic-bezier(.22,1,.36,1); max-height: calc(100dvh - 32px); }
+.mp-result-card { overflow-y: auto; animation: popIn .5s cubic-bezier(.22,1,.36,1); max-height: 100dvh; border-radius: 0; }
 .mp-result-header {
   display: flex; align-items: flex-start; justify-content: space-between;
   padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
@@ -1116,7 +1118,7 @@ body::after {
   .mp-room-card,
   .mp-join-card,
   .mp-lobby-card,
-  .mp-result-card  { max-height: calc(100dvh - 24px); border-radius: var(--r-lg); }
+  .mp-result-card  { max-height: 100dvh; }
 
   /* Room screen */
   .mp-room-header        { padding: 14px 16px 12px; }
