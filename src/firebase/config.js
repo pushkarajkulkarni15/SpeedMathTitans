@@ -16,13 +16,13 @@ export const RTDB_CONFIGURED = true;
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDdQg7yVE2OzxW4hpgNarQY6SDuzPWjVAo",
-  authDomain: "speedmathtitans.firebaseapp.com",
-  databaseURL: "https://speedmathtitans-default-rtdb.firebaseio.com",
-  projectId: "speedmathtitans",
-  storageBucket: "speedmathtitans.firebasestorage.app",
-  messagingSenderId: "856359747715",
-  appId: "1:856359747715:web:48e28284f262af41cd1bb6"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
