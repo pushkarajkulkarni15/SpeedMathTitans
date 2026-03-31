@@ -31,6 +31,7 @@ export default function App() {
   const [gameResult,   setGameResult]   = useState(null);
   const [lastScore,    setLastScore]    = useState(null);
   const [showFriendsModal, setShowFriendsModal] = useState(false);
+  const [guestName,        setGuestName]        = useState('Guest');
   const [userData,     setUserData]     = useState(null);
   const [gameHistory,  setGameHistory]  = useState([]);
 
@@ -41,7 +42,7 @@ export default function App() {
       .catch(console.error);
   };
 
-  const room = useRoom(user, isGuest);
+  const room = useRoom(user, isGuest, guestName);
 
   // ── Auth state listener ──────────────────────────────────────────────────
   useEffect(() => {
@@ -76,7 +77,7 @@ export default function App() {
 
   // ── Solo game callbacks ──────────────────────────────────────────────────
   const handleSignIn      = () => {};
-  const handlePlayAsGuest = () => { setIsGuest(true); setUser(null); setScreen('home'); };
+  const handlePlayAsGuest = (name) => { setGuestName(name || 'Guest'); setIsGuest(true); setUser(null); setScreen('home'); };
   const handleSignOut     = () => { setUser(null); setIsGuest(false); setScreen('auth'); };
   const handlePlay        = () => { setScreen('game'); };
 
@@ -140,7 +141,7 @@ export default function App() {
 
       {screen === 'home' && (
         <HomeScreen
-          user={user} isGuest={isGuest}
+          user={user} isGuest={isGuest} guestName={guestName}
           selectedSecs={selectedSecs} onSelectTime={setSelectedSecs}
           onPlay={handlePlay}
           onPlayWithFriends={handleOpenFriendsModal}
@@ -167,7 +168,7 @@ export default function App() {
 
       {screen === 'profile' && (
         <ProfileScreen
-          user={user} isGuest={isGuest}
+          user={user} isGuest={isGuest} guestName={guestName}
           onSignOut={handleSignOut} onGoHome={handleGoHome}
           userData={userData}
         />

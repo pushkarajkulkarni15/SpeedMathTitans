@@ -17,7 +17,7 @@ function getRank(level) {
   return 'Beginner';
 }
 
-export default function ProfileScreen({ user, isGuest, onSignOut, onGoHome, userData }) {
+export default function ProfileScreen({ user, isGuest, guestName, onSignOut, onGoHome, userData }) {
   const [signingOut, setSigningOut] = useState(false);
 
   const stats   = userData;
@@ -33,7 +33,7 @@ export default function ProfileScreen({ user, isGuest, onSignOut, onGoHome, user
     }
   };
 
-  const displayName = isGuest ? 'Guest' : (user?.displayName || 'Player');
+  const displayName = isGuest ? (guestName || 'Guest') : (user?.displayName || 'Player');
   const level = getLevel(stats?.gamesPlayed);
   const rank  = getRank(level);
 
@@ -51,7 +51,7 @@ export default function ProfileScreen({ user, isGuest, onSignOut, onGoHome, user
         {/* Avatar */}
         <div className="profile-avatar-wrap">
           {isGuest ? (
-            <div className="user-avatar-init profile-avatar">?</div>
+            <div className="user-avatar-init profile-avatar">{(guestName || 'G')[0].toUpperCase()}</div>
           ) : user?.photoURL ? (
             <img className="user-avatar profile-avatar" src={user.photoURL} alt="" referrerPolicy="no-referrer" />
           ) : (

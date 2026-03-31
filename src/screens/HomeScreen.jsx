@@ -17,11 +17,11 @@ const MODE_CARDS = [
   { secs: 300, label: 'Pro Mode', sub: '5 minutes', tag: 'PRO',       cls: 'gold'   },
 ];
 
-export default function HomeScreen({ user, isGuest, selectedSecs, onSelectTime, onPlay, onPlayWithFriends, userData }) {
+export default function HomeScreen({ user, isGuest, guestName, selectedSecs, onSelectTime, onPlay, onPlayWithFriends, userData }) {
   const stats   = userData;
   const loading = user && !userData;
 
-  const displayName = isGuest ? 'Guest' : (user?.displayName || 'Challenger');
+  const displayName = isGuest ? (guestName || 'Guest') : (user?.displayName || 'Challenger');
   const firstName   = displayName.split(' ')[0];
 
   return (
@@ -35,7 +35,7 @@ export default function HomeScreen({ user, isGuest, selectedSecs, onSelectTime, 
             <div className="home-name">{firstName} 👋</div>
           </div>
           {isGuest ? (
-            <div className="user-avatar-init home-avatar">?</div>
+            <div className="user-avatar-init home-avatar">{(guestName || 'G')[0].toUpperCase()}</div>
           ) : user?.photoURL ? (
             <img className="user-avatar home-avatar" src={user.photoURL} alt="" referrerPolicy="no-referrer" />
           ) : (

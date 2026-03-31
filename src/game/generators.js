@@ -75,7 +75,7 @@ export const generators = [
     const ranges = [[2, 9], [9, 15], [13, 20], [18, 25]];
     const [lo, hi] = ranges[tier];
     const n = rnd(lo, hi);
-    return { q: `${n}²  =  ?`, ans: n * n, hint: `What is ${n} squared?`, cat: 'Squares' };
+    return { q: `${n}²  =  ?`, ans: n * n, hint: `What is ${n} squared?`, cat: 'Squares', key: n };
   },
 
   // Square roots
@@ -83,7 +83,7 @@ export const generators = [
     const ranges = [[2, 9], [9, 15], [13, 20], [18, 25]];
     const [lo, hi] = ranges[tier];
     const n = rnd(lo, hi);
-    return { q: `√${n * n}  =  ?`, ans: n, hint: 'Find the square root', cat: 'Square Roots' };
+    return { q: `√${n * n}  =  ?`, ans: n, hint: 'Find the square root', cat: 'Square Roots', key: n };
   },
 
   // Cubes
@@ -91,7 +91,7 @@ export const generators = [
     const ranges = [[2, 5], [3, 7], [5, 9], [7, 12]];
     const [lo, hi] = ranges[tier];
     const n = rnd(lo, hi);
-    return { q: `${n}³  =  ?`, ans: n ** 3, hint: `What is ${n} cubed?`, cat: 'Cubes' };
+    return { q: `${n}³  =  ?`, ans: n ** 3, hint: `What is ${n} cubed?`, cat: 'Cubes', key: n };
   },
 
   // Cube roots
@@ -99,7 +99,7 @@ export const generators = [
     const ranges = [[2, 5], [3, 7], [5, 9], [7, 12]];
     const [lo, hi] = ranges[tier];
     const n = rnd(lo, hi);
-    return { q: `∛${n ** 3}  =  ?`, ans: n, hint: 'Find the cube root', cat: 'Cube Roots' };
+    return { q: `∛${n ** 3}  =  ?`, ans: n, hint: 'Find the cube root', cat: 'Cube Roots', key: n };
   },
 
   // HCF
@@ -170,19 +170,34 @@ export const generators = [
 ];
 
 /**
- * Pick a random problem, avoiding the same category twice in a row.
+ * Pick a random problem, avoiding:
+ *   - the same category twice in a row
+ *   - questions already asked this session (usedQs)
+ *   - complementary inverse pairs: Squares↔Square Roots (sqKeys), Cubes↔Cube Roots (cuKeys)
+ *
  * @param {string} prevCat
- * @param {number} solved  — number of correct answers so far (drives difficulty)
- * @returns {{ q, ans, hint, cat }}
+ * @param {number} solved       — number of correct answers so far (drives difficulty)
+ * @param {{ usedQs?: Set, sqKeys?: Set, cuKeys?: Set }} [sessionCtx]
+ * @returns {{ q, ans, hint, cat, key? }}
  */
-export function pickProblem(prevCat, solved = 0) {
+export function pickProblem(prevCat, solved = 0, sessionCtx = null) {
   const tier = Math.min(Math.floor(solved / 5), 3);
-  let gen, prob, tries = 0;
+  const { usedQs, sqKeys, cuKeys } = sessionCtx ?? {};
+
+  let prob;
+  let tries = 0;
   do {
-    gen  = pick(generators);
-    prob = gen(tier);
+    prob = pick(generators)(tier);
     tries++;
-  } while (prob.cat === prevCat && tries < 8);
+    if (tries >= 30) break; // exhausted — just use whatever we have
+
+    if (prob.cat === prevCat) continue;
+    if (usedQs  && usedQs.has(prob.q))  continue;
+    if (sqKeys  && (prob.cat === 'Squares'    || prob.cat === 'Square Roots') && sqKeys.has(prob.key)) continue;
+    if (cuKeys  && (prob.cat === 'Cubes'      || prob.cat === 'Cube Roots')   && cuKeys.has(prob.key)) continue;
+    break;
+  } while (true); // eslint-disable-line no-constant-condition
+
   return prob;
 }
 
@@ -209,8 +224,12 @@ export function generateSeededQuestions(seed, count = 300) {
   Math.random = rng;
   const questions = [];
   let prevCat = '';
+  const sessionCtx = { usedQs: new Set(), sqKeys: new Set(), cuKeys: new Set() };
   for (let i = 0; i < count; i++) {
-    const prob = pickProblem(prevCat, i);  // difficulty scales through the session
+    const prob = pickProblem(prevCat, i, sessionCtx);
+    sessionCtx.usedQs.add(prob.q);
+    if (prob.cat === 'Squares'    || prob.cat === 'Square Roots') sessionCtx.sqKeys.add(prob.key);
+    if (prob.cat === 'Cubes'      || prob.cat === 'Cube Roots')   sessionCtx.cuKeys.add(prob.key);
     questions.push(prob);
     prevCat = prob.cat;
   }

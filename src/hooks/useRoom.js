@@ -29,7 +29,7 @@ import {
  *   reportScore(s, sol, acc) → writes live score to RTDB (call throttled externally)
  *   leaveRoom()              → removes player, cleans up listener
  */
-export function useRoom(user, isGuest) {
+export function useRoom(user, isGuest, guestName = 'Guest') {
   const [roomCode,  setRoomCode]  = useState(null);
   const [roomData,  setRoomData]  = useState(null);
   const [isHost,    setIsHost]    = useState(false);
@@ -44,7 +44,7 @@ export function useRoom(user, isGuest) {
     user?.uid || `guest_${Math.random().toString(36).slice(2, 10)}`
   );
   const playerId   = playerIdRef.current;
-  const playerName = isGuest ? 'Guest' : (user?.displayName || 'Player');
+  const playerName = isGuest ? (guestName || 'Guest') : (user?.displayName || 'Player');
 
   // Keep statusRef in sync so the RTDB listener can read the latest status
   useEffect(() => { statusRef.current = status; }, [status]);

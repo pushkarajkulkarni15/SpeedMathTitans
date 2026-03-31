@@ -50,7 +50,14 @@ export function useGameState() {
   const startGame = useCallback((secs) => {
     clearInterval(timerRef.current);
 
-    const firstProblem = pickProblem('');
+    const usedQs = new Set();
+    const sqKeys = new Set();
+    const cuKeys = new Set();
+    const firstProblem = pickProblem('', 0, { usedQs, sqKeys, cuKeys });
+    usedQs.add(firstProblem.q);
+    if (firstProblem.cat === 'Squares'    || firstProblem.cat === 'Square Roots') sqKeys.add(firstProblem.key);
+    if (firstProblem.cat === 'Cubes'      || firstProblem.cat === 'Cube Roots')   cuKeys.add(firstProblem.key);
+
     gRef.current = {
       ...INITIAL_G,
       totalTime: secs,
@@ -58,6 +65,9 @@ export function useGameState() {
       problem:   firstProblem,
       prevCat:   firstProblem.cat,
       active:    true,
+      usedQs,
+      sqKeys,
+      cuKeys,
     };
     forceUpdate();
 
@@ -118,7 +128,12 @@ export function useGameState() {
    */
   const nextQuestion = useCallback(() => {
     const g = gRef.current;
-    const prob = pickProblem(g.prevCat, g.solved);
+    const sessionCtx = { usedQs: g.usedQs, sqKeys: g.sqKeys, cuKeys: g.cuKeys };
+    const prob = pickProblem(g.prevCat, g.solved, sessionCtx);
+    // mutate sets in place — same references are kept in gRef spread below
+    g.usedQs?.add(prob.q);
+    if (prob.cat === 'Squares'    || prob.cat === 'Square Roots') g.sqKeys?.add(prob.key);
+    if (prob.cat === 'Cubes'      || prob.cat === 'Cube Roots')   g.cuKeys?.add(prob.key);
     gRef.current = { ...g, problem: prob, prevCat: prob.cat, curAttempts: 0 };
     forceUpdate();
   }, []);

@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { signInWithGoogle } from '../firebase/auth';
 
 export default function AuthScreen({ onSignIn, onPlayAsGuest }) {
-  const [tab,      setTab]      = useState('login'); // 'login' | 'signup'
-  const [email,    setEmail]    = useState('');
-  const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
-  const [showPwd,  setShowPwd]  = useState(false);
-  const [error,    setError]    = useState('');
-  const [loading,  setLoading]  = useState(false);
+  const [tab,            setTab]           = useState('login'); // 'login' | 'signup'
+  const [email,          setEmail]         = useState('');
+  const [password,       setPassword]      = useState('');
+  const [username,       setUsername]      = useState('');
+  const [showPwd,        setShowPwd]       = useState(false);
+  const [error,          setError]         = useState('');
+  const [loading,        setLoading]       = useState(false);
+  const [showGuestInput, setShowGuestInput] = useState(false);
+  const [guestName,      setGuestName]     = useState('');
 
   const switchTab = (t) => { setTab(t); setError(''); };
 
@@ -126,9 +128,39 @@ export default function AuthScreen({ onSignIn, onPlayAsGuest }) {
           By continuing, you agree to our <span>Terms of Service</span> and <span>Privacy Policy</span>
         </p>
 
-        <button className="btn-guest" onClick={onPlayAsGuest}>
-          Play as Guest
-        </button>
+        {!showGuestInput ? (
+          <button className="btn-guest" onClick={() => setShowGuestInput(true)}>
+            Play as Guest
+          </button>
+        ) : (
+          <div className="guest-name-wrap">
+            <p className="guest-name-label">Choose a display name</p>
+            <input
+              className="auth-input"
+              type="text"
+              placeholder="e.g. MathWizard99"
+              maxLength={20}
+              value={guestName}
+              onChange={e => setGuestName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && onPlayAsGuest(guestName.trim() || 'Guest')}
+              autoFocus
+            />
+            <div className="guest-name-actions">
+              <button
+                className="btn-guest guest-cancel-btn"
+                onClick={() => { setShowGuestInput(false); setGuestName(''); }}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn-start guest-confirm-btn"
+                onClick={() => onPlayAsGuest(guestName.trim() || 'Guest')}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
