@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { calcAccuracy, calcGrade } from '../game/scoring';
 import { saveGameResult } from '../firebase/firestore';
 
-export default function ResultScreen({ result, user, isGuest, lastScore, onPlayAgain, onGoHome }) {
+export default function ResultScreen({ result, user, isGuest, lastScore, onPlayAgain, onGoHome, onSaved }) {
   const [saveStatus, setSaveStatus] = useState(null); // null | 'saving' | 'saved' | 'guest' | 'error'
   const savedRef = useRef(false);
 
@@ -20,7 +20,7 @@ export default function ResultScreen({ result, user, isGuest, lastScore, onPlayA
 
     setSaveStatus('saving');
     saveGameResult(user.uid, { score, solved, accuracy: acc, bestStreak, duration: totalTime })
-      .then(() => setSaveStatus('saved'))
+      .then(() => { setSaveStatus('saved'); onSaved?.(); })
       .catch(err => { console.error(err); setSaveStatus('error'); });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

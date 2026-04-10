@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signInWithGoogle } from '../firebase/auth';
+import { signInWithGoogle, signInWithEmail, signUpWithEmail } from '../firebase/auth';
 
 export default function AuthScreen({ onSignIn, onPlayAsGuest }) {
   const [tab,            setTab]           = useState('login'); // 'login' | 'signup'
@@ -27,9 +27,32 @@ export default function AuthScreen({ onSignIn, onPlayAsGuest }) {
     }
   };
 
-  const handleEmailAuth = (e) => {
+  const handleEmailAuth = async (e) => {
     e.preventDefault();
-    setError('Email/password auth coming soon. Please use Google sign-in.');
+    setError('');
+    if (!email || !password) { setError('Please enter email and password.'); return; }
+    if (tab === 'signup' && !username.trim()) { setError('Please enter a username.'); return; }
+    setLoading(true);
+    try {
+      if (tab === 'signup') {
+        await signUpWithEmail(email, password, username.trim());
+      } else {
+        await signInWithEmail(email, password);
+      }
+      // onAuthStateChanged in App.jsx fires and routes to home
+    } catch (err) {
+      const msg = {
+        'auth/email-already-in-use': 'An account with this email already exists.',
+        'auth/invalid-email': 'Invalid email address.',
+        'auth/weak-password': 'Password must be at least 6 characters.',
+        'auth/user-not-found': 'No account found with this email.',
+        'auth/wrong-password': 'Incorrect password.',
+        'auth/invalid-credential': 'Incorrect email or password.',
+      }[err.code] || err.message;
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

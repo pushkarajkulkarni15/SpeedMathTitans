@@ -85,7 +85,6 @@ export default function App() {
     setLastScore(gameResult?.score ?? null);
     setGameResult(result);
     setScreen('result');
-    if (user) refreshUserData(user.uid);
   };
 
   const handlePlayAgain = () => { setScreen('game'); };
@@ -163,6 +162,7 @@ export default function App() {
           user={user} isGuest={isGuest}
           lastScore={lastScore}
           onPlayAgain={handlePlayAgain} onGoHome={handleGoHome}
+          onSaved={() => user && refreshUserData(user.uid)}
         />
       )}
 
